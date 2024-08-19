@@ -1,114 +1,105 @@
-// Assignment Code
-var generateBtn = document.querySelector("#generate");
+var generateBtn = document.querySelector('#generate');
+var passwordText = document.querySelector('#password');
 
+// EVENT LISTENERS
+generateBtn.addEventListener('click', generatePassword);
+
+// STORE CHARACTER SETS IN ARRAY FOR EACH TYPE IN GLOBAL SCOPE
+var allLowChars = 'abcdefghijklmnopqrstuvwxyz'.split('');
+var allUpChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+var allNums = '0123456789'.split('');
+var allSpcChars = ' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'.split('');
+
+// // PROMPT FOR PASSWORD LENGTH & VALIDATE RESPONSE
+function generatePassword() {
+	var numChars = prompt(
+		'How many characters would you like in your password (Enter a value between 8 and 128)'
+	);
+	// allow user to cancel
+	if (numChars === null) return;
+
+	// coerce NaN if input is a text string that cannot be coerced to a number
+	numChars = parseInt(numChars);
+
+	// validate input
+	while (isNaN(numChars) || numChars < 8 || numChars > 128) {
+		if (numChars === null) return;
+		numChars = prompt('Invalid entry, please enter a NUMBER between 8 and 128');
+	}
+
+	selectChars(numChars);
+}
+
+// PROMPT FOR CHARACTER TYPES TO USE
+function selectChars(numChars) {
+	var lowCase = confirm(
+		'Would you like to include LOWERCASE characters in password? (Click OK for YES)'
+	);
+	var upCase = confirm(
+		'Would you like to include UPPERCASE characters in password? (Click OK for YES)'
+	);
+	var nums = confirm(
+		'Would you like to include NUMBERS in your password? (Click OK for YES)'
+	);
+	var specials = confirm(
+		'Would you like to include SPECIAL CHARACTERS in your password? (Click OK for YES)'
+	);
+
+	if (lowCase === false && upCase === false && nums === false && specials === false) {
+		alert('You must choose at least one type of character to use for your password');
+		lowCase = confirm(
+			'Would you like to include LOWERCASE characters in password? (Click OK for YES)'
+		);
+		upCase = confirm(
+			'Would you like to include UPPERCASE characters in password? (Click OK for YES)'
+		);
+		nums = confirm(
+			'Would you like to include NUMBERS in your password? (Click OK for YES)'
+		);
+		specials = confirm(
+			'Would you like to include SPECIAL CHARACTERS in your password? (Click OK for YES)'
+		);
+	}
+
+	// build object for criteria config
+	var criteria = {
+		numChars : numChars,
+		lowCase  : lowCase,
+		upCase   : upCase,
+		nums     : nums,
+		specials : specials
+	};
+
+	createPassword(criteria);
+}
+
+// UNTIL PW LENGTH IS FULFILLED, LOOP OVER ALL CHARACTER TYPES & (DEPENDING ON CRITERIA BOOLEAN) CALL SUBROUTINE TO GENERATE RANDO INDEX IN CHAR SET TO PUSH TO PW ARRAY
+function createPassword(criteria) {
+	var passwordArr = [];
+	while (passwordArr.length < criteria.numChars) {
+		if (criteria.lowCase) {
+			passwordArr.push(allLowChars[genRanIdx(allLowChars)]);
+		}
+		if (criteria.upCase) {
+			passwordArr.push(allUpChars[genRanIdx(allUpChars)]);
+		}
+		if (criteria.nums) {
+			passwordArr.push(allNums[genRanIdx(allNums)]);
+		}
+		if (criteria.specials) {
+			passwordArr.push(allSpcChars[genRanIdx(allSpcChars)]);
+		}
+	}
+	var passWordStr = passwordArr.join('');
+	writePassword(passWordStr);
+}
+
+// GENERATE RANDOM INDEX FROM CHAR SETS
+function genRanIdx(charSet) {
+	return Math.floor(Math.random() * charSet.length);
+}
 
 // Write password to the #password input
-function writePassword() {
-  var password = generatePassword();
-  var passwordText = document.querySelector("#password");
-
-  passwordText.value = password;
-
+function writePassword(password) {
+	passwordText.value = password;
 }
-
-// arrays
-var lower = "abcdefghijklmnopqrstuvwxyz";
-// splitting the characters in the array
-var lowerArray = lower.split("");
-var capital = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-var capitalArray = capital.split("");
-var number = "1234567890";
-var numberArray = number.split("");
-var special = " ~!@#$%^&*()[]\{}|:;-+,./<>=?'_`";
-var specialArray = special.split("");
-
-function generatePassword() {
-  var options = getOptions();
-  var result = [];
-  var possibleChars = [];
-  var guaranteedChars = [];
-
-  if(options.special) {
-    possibleChars = possibleChars.concat(specialArray);
-    guaranteedChars.push(generateRandom(specialArray));
-  }
-  if(options.lower) {
-    possibleChars = possibleChars.concat(lowerArray);
-    guaranteedChars.push(generateRandom(lowerArray));
-  }
-  if(options.capital) {
-    possibleChars = possibleChars.concat(capitalArray);
-    guaranteedChars.push(generateRandom(capitalArray));
-  }
-  if(options.number) {
-    possibleChars = possibleChars.concat(numberArray);
-    guaranteedChars.push(generateRandom(numberArray));
-  }
-  for(var i = 0; i < options.length; i++) {
-    var possibleCharacter = generateRandom(possibleChars);
-    result.push(possibleCharacter);
-  }
-  
-  ////mixing at least one 
-  for(var i = 0; i < guaranteedChars.length; i++) {
-    result[i] = guaranteedChars[i];
-
-  }
-  return result.join("");
-}
-
-
-function generateRandom(arr) {
-    var range = Math.floor(Math.random() * arr.length);
-    var randomEl = arr[range];
-    return randomEl;
-  }
-
-  function getOptions() {
-    var passLength = prompt("How long would you like your password to be?");
-    if (passLength > 7 && passLength < 129) {
-      alert("valid length accepted.");
-          }
-    // numbers
-    var passNumber = confirm("Would you like your password to include numbers?");
-    if (passNumber === true) {
-      alert("password will contain numbers!")
-          }
-    // lower case letters
-    var passLower = confirm("Would you like your password to include lower case letters?");
-    if (passLower == true) {
-      alert("password will contain lower case letters!")
-          }
-    // capitalized letters 
-    var passCapital = confirm("Would you like your password to include capitalized letters?");
-    if (passCapital == true) {
-      alert("password will contain capitalized letters!")
-          }
-    // special characters  
-    var passSpecial = confirm("Would you like your password to include special characters?");
-    if (passSpecial == true) {
-      alert("password will contain special characters!")
-          }
-    if (passNumber === false &&
-      passLower === false &&
-      passCapital === false &&
-      passSpecial === false
-    ) {
-      alert("you must select at least one option")
-    }
-    var options = {
-      length: passLength,
-      special: passSpecial,
-      lower: passLower,
-      capital: passCapital,
-      number: passNumber
-    };
-    return options;
-  }
-
-
-
-// Add event listener to generate button
-generateBtn.addEventListener("click", writePassword);
-
-//generatePassword
